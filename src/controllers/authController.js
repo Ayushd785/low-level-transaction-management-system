@@ -36,3 +36,49 @@ export const register = async (req, res) =>{
         })
     }
 }
+
+export const login =  async(req, res)=>{
+    const {email, password} = req.body;
+    try{
+        if(!email || !password){
+            return res.status(300).json({
+                msg:"Bad request please enter the credentials"
+            })
+        }
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(300).json({
+                msg:"User does not exist please register"
+            })
+        }
+        const isValid = await bcrypt.compare(password, user.password);
+        if(!isValid){
+            return res.status(301).json({
+                msg:"Incorrect credentials"
+            })
+        }
+        const token = await jwt.sign(
+            {userId: user._id},
+            process.env.JWT_SECRET,
+            {
+                expiresIn: "7d",
+            }
+        );
+        const response = {
+            name: user.name,
+            email: user.email,
+            token
+        }
+
+        return res.status(201).json({
+            msg:"User logged in successfully",
+            res: response,
+        })
+
+    }catch(error){
+        res.status(400).json({
+            "msg":"Server error",
+            "err":error.message
+        })
+    }
+}
