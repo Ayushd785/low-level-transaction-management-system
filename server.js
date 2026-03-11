@@ -1,19 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
-import router from "./src/routes/authRoutes.js";
+import authrouter from "./src/routes/authRoutes.js";
 import { connectDb } from "./src/config/dbConfig.js";
-
+import cookieParser from "cookie-parser";
+import accountrouter from "./src/routes/accountRoutes.js"
 
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to low level transaction management system" });
 });
 
-app.use("/api/auth", router);
+app.use("/api/auth", authrouter);
+app.use("/api/account",accountrouter);
 
 const startServer = async () => {
   try {
